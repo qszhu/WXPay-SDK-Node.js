@@ -723,8 +723,7 @@ WXPay.prototype.transfer = function (reqData, timeout) {
   clonedData['mch_appid'] = self.APPID;
   clonedData['mchid'] = self.MCHID;
   clonedData['nonce_str'] = WXPayUtil.generateNonceStr();
-  clonedData[WXPayConstants.FIELD_SIGN_TYPE] = self.SIGN_TYPE;
-  clonedData[WXPayConstants.FIELD_SIGN] = WXPayUtil.generateSignature(clonedData, self.KEY, self.SIGN_TYPE);
+  clonedData[WXPayConstants.FIELD_SIGN] = WXPayUtil.generateSignature(clonedData, self.KEY, WXPayConstants.SIGN_TYPE_MD5);
 
   return new Promise(function (resolve, reject) {
     self.requestWithCert(url, clonedData, timeout).then(function (respXml) {
