@@ -35,6 +35,7 @@ var WXPayConstants = {
   REPORT_URL : "https://api.mch.weixin.qq.com/payitil/report",
   SHORTURL_URL : "https://api.mch.weixin.qq.com/tools/shorturl",
   AUTHCODETOOPENID_URL : "https://api.mch.weixin.qq.com/tools/authcodetoopenid",
+  TRANSFER_URL : "https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers",
 
   // Sandbox URL
   SANDBOX_MICROPAY_URL : "https://api.mch.weixin.qq.com/sandboxnew/pay/micropay",
@@ -48,6 +49,8 @@ var WXPayConstants = {
   SANDBOX_REPORT_URL : "https://api.mch.weixin.qq.com/sandboxnew/payitil/report",
   SANDBOX_SHORTURL_URL : "https://api.mch.weixin.qq.com/sandboxnew/tools/shorturl",
   SANDBOX_AUTHCODETOOPENID_URL : "https://api.mch.weixin.qq.com/sandboxnew/tools/authcodetoopenid",
+  // TODO: not tested
+  SANDBOX_TRANSFER_URL : "https://api.mch.weixin.qq.com/sandboxnew/mmpaymkttransfers/promotion/transfers",
 
 };
 
@@ -701,6 +704,33 @@ WXPay.prototype.authCodeToOpenid = function (reqData, timeout) {
     });
   });
 };
+
+/**
+ * 企业支付
+ *
+ * @param {object} reqData
+ * @param {int} timeout
+ * @returns {Promise}
+ */
+WXPay.prototype.transfer = function (reqData, timeout) {
+  var self = this;
+  var url = WXPayConstants.TRANSFER_URL;
+  if (self.USE_SANDBOX) {
+    url = WXPayConstants.SANDBOX_TRANSFER_URL;
+  }
+  return new Promise(function (resolve, reject) {
+    self.requestWithCert(url, self.fillRequestData(reqData), timeout).then(function (respXml) {
+      self.processResponseXml(respXml).then(function (respObj) {
+        resolve(respObj);
+      }).catch(function (err) {
+        reject(err);
+      });
+    }).catch(function (err) {
+      reject(err);
+    });
+  });
+}
+
 
 module.exports = {
   WXPayConstants: WXPayConstants,
