@@ -718,8 +718,16 @@ WXPay.prototype.transfer = function (reqData, timeout) {
   if (self.USE_SANDBOX) {
     url = WXPayConstants.SANDBOX_TRANSFER_URL;
   }
+
+  var clonedData = JSON.parse(JSON.stringify(reqData));
+  clonedData['mch_appid'] = self.APPID;
+  clonedData['mchid'] = self.MCHID;
+  clonedData['nonce_str'] = WXPayUtil.generateNonceStr();
+  clonedData[WXPayConstants.FIELD_SIGN_TYPE] = self.SIGN_TYPE;
+  clonedData[WXPayConstants.FIELD_SIGN] = WXPayUtil.generateSignature(clonedData, self.KEY, self.SIGN_TYPE);
+
   return new Promise(function (resolve, reject) {
-    self.requestWithCert(url, self.fillRequestData(reqData), timeout).then(function (respXml) {
+    self.requestWithCert(url, clonedData, timeout).then(function (respXml) {
       self.processResponseXml(respXml).then(function (respObj) {
         resolve(respObj);
       }).catch(function (err) {
