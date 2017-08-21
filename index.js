@@ -711,6 +711,7 @@ WXPay.prototype.authCodeToOpenid = function (reqData, timeout) {
  * @param {object} reqData
  * @param {int} timeout
  * @returns {Promise}
+ * @see {@link https://pay.weixin.qq.com/wiki/doc/api/tools/mch_pay.php?chapter=14_2}
  */
 WXPay.prototype.transfer = function (reqData, timeout) {
   var self = this;
@@ -719,6 +720,15 @@ WXPay.prototype.transfer = function (reqData, timeout) {
     url = WXPayConstants.SANDBOX_TRANSFER_URL;
   }
 
+  /*
+   Differences from normal wxpay api:
+   * request:
+     * 'appid' => 'mch_appid'
+     * 'mch_id' => 'mchid'
+     * 'sign_type' => no such field, alwasy use MD5
+   * response:
+     * no 'sign' field, hence no signature checking
+   */
   var clonedData = JSON.parse(JSON.stringify(reqData));
   clonedData['mch_appid'] = self.APPID;
   clonedData['mchid'] = self.MCHID;
