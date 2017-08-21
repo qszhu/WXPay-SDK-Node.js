@@ -249,8 +249,9 @@ var WXPay = function (config) {
  * @param {string} respXml
  * @returns {Promise}
  */
-WXPay.prototype.processResponseXml = function(respXml) {
+WXPay.prototype.processResponseXml = function(respXml, checkSign) {
   var self = this;
+  if (checkSign === undefined) checkSign = true;
 
   return new Promise(function (resolve, reject) {
     WXPayUtil.xml2obj(respXml).then(function (respObj) {
@@ -260,12 +261,11 @@ WXPay.prototype.processResponseXml = function(respXml) {
           resolve(respObj);
         }
         else if (return_code === WXPayConstants.SUCCESS) {
-          var isValid = self.isResponseSignatureValid(respObj);
-          if (isValid) {
-            resolve(respObj);
+          if (checkSign && !self.isResponseSignatureValid(respObj)) {
+            reject(new Error('Invalid sign value in XML: ' + respXml));
           }
           else {
-            reject(new Error('Invalid sign value in XML: ' + respXml));
+            resolve(respObj);
           }
         }
         else {
@@ -727,7 +727,7 @@ WXPay.prototype.transfer = function (reqData, timeout) {
 
   return new Promise(function (resolve, reject) {
     self.requestWithCert(url, clonedData, timeout).then(function (respXml) {
-      self.processResponseXml(respXml).then(function (respObj) {
+      self.processResponseXml(respXml, false).then(function (respObj) {
         resolve(respObj);
       }).catch(function (err) {
         reject(err);
